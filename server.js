@@ -35,15 +35,25 @@ app.post('/todos', (req, res) => {
         return res.status(400).send();
     }
     body.description = body.description.trim();
-    addTodo(body);
+    body.id = todoNextId++;
+    todos.push(body);
     res.json(body);
+});
+
+app.delete('/todos/:id', (req, res) => {
+    var todoId = parseInt(req.params.id, 10);
+    var matchedTodo = _.findWhere(todos, {id: todoId});
+
+    if(!matchedTodo) {
+        res.status(404).json({"error": "no todo found"});
+    } else {
+        todos = _.without(todos, matchedTodo);
+        res.json(matchedTodo);
+    }
+
 });
 
 app.listen(PORT, () => {
     console.log('Express listening on port '+PORT);
 });
 
-function addTodo(body) {
-    body.id = todoNextId++;
-    todos.push(body);
-}
