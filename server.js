@@ -32,7 +32,7 @@ app.get('/todos', (req, res) => {
     
     db.todo.findAll({where: where}).then((todos) => {
         res.json(todos);
-    }, (err) => {
+    }, () => {
         res.status(500).send();
     })
 });
@@ -109,10 +109,18 @@ app.put('/todos/:id', (req, res) => {
     });
 });
 
+app.post('/users', (req, res) => {
+    var body = _.pick(req.body, 'email', 'password');
+
+    db.user.create(body).then((user) => {
+        res.json(user.toJSON());
+    }, (err) => {
+        res.status(400).json(err);
+    });
+});
+
 db.sequelize.sync().then(() => {
     app.listen(PORT, () => {
         console.log('Express listening on port '+PORT);
     });
 });
-
-
