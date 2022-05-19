@@ -57,7 +57,11 @@ app.post('/todos', middleware.requireAuthentication, (req, res) => {
     var body = _.pick(req.body, 'description', 'completed');
 
     db.todo.create(body).then((todo) => {
+        req.user.addTodo(todo).then(() => {
+            return todo.reload();
+        }).then((todo) => {
         res.json(todo.toJSON());
+        })
     }, (err) => {
         res.status(400).json(err);
     });
@@ -121,23 +125,23 @@ app.post('/users', (req, res) => {
     });
 });
 
-app.post('/users/login', (req, res) => {
+app.post('/users/login', function(req, res) {
     var body = _.pick(req.body, 'email', 'password');
    
-    db.user.authenticate(body).then((user) => {
+    db.user.authenticate(body).then( function(user) {
         var token = user.generateToken('authentication');
         if(token) {
             res.header('Auth', token).json(user.toPublicJSON());
         } else {
             res.status(401).send();
         }
-    }, () => {
+    }, function () {
         res.status(401).send();
     });
 }); 
 
-db.sequelize.sync({force: true}).then(() => {
-    app.listen(PORT, () => {
+db.sequelize.sync({force: true}).then(function() {
+    app.listen(PORT,function () {
         console.log('Express listening on port '+PORT);
     });
 });

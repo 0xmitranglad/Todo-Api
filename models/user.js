@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         classMethods: {
             authenticate: function(body) {
-                return new Promise((resolve, reject) => {
+                return new Promise( function(resolve, reject) {
                     if(typeof body.email !== 'string' && typeof body.password !== 'string') {
                         return reject();
                     }
@@ -53,12 +53,12 @@ module.exports = (sequelize, DataTypes) => {
                         where: {
                             email: body.email
                         } 
-                    }).then((user) => {
+                    }).then(function (user) {
                         if(!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
                             return reject();
                         }
                         resolve(user);
-                    }, (err) => {
+                    }, function (err) {
                         reject();
                     });
                 });
@@ -96,7 +96,10 @@ module.exports = (sequelize, DataTypes) => {
                 }
     
                 try {
-                    var stringData = JSON.stringify({id: this.get('id'), type: type});
+                    var stringData = JSON.stringify({
+                        id: this.get('id'), 
+                        type: type
+                    });
                     var encryptedData = cryptojs.AES.encrypt(stringData, 'abc123@#!').toString();
                     var token = jwt.sign({
                         token: encryptedData
